@@ -1,4 +1,4 @@
-const API_URL = ''; // même domaine en production
+const API_URL = '/api'; // même domaine en production
 
 function getToken() {
   return localStorage.getItem('token') || '';
@@ -29,10 +29,13 @@ export const auth = {
   login: (body) => api('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   me: () => api('/auth/me'),
   logout: () => api('/auth/logout', { method: 'POST', body: JSON.stringify({ refresh_token: localStorage.getItem('refresh_token') }) }),
+  resetRequest: (body) => api('/auth/reset-request', { method: 'POST', body: JSON.stringify(body) }),
+  resetPassword: (body) => api('/auth/reset-password', { method: 'POST', body: JSON.stringify(body) }),
 };
 
 export const days = {
-  list: () => api('/days'),
+  list: (page = 1, limit = 20) => api(`/days?page=${page}&limit=${limit}`),
+  today: (date) => api(`/days/today?date=${encodeURIComponent(date)}`),
   create: (body) => api('/days', { method: 'POST', body: JSON.stringify(body) }),
   get: (id) => api(`/days/${id}`),
   morning: (id, body) => api(`/days/${id}/morning`, { method: 'POST', body: JSON.stringify(body) }),

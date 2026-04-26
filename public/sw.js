@@ -1,8 +1,12 @@
 const CACHE_NAME = 'coach-life-v1';
 const urlsToCache = [
   '/',
+  '/src/main.js',
+  '/src/style.css',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png',
+  '/favicon-32x32.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -23,8 +27,22 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // Ne pas intercepter les appels API
+  if (event.request.url.includes('/api/') || event.request.url.includes('/auth/') || event.request.url.includes('/days/') || event.request.url.includes('/concepts/') || event.request.url.includes('/patterns') || event.request.url.includes('/push/') || event.request.url.includes('/health')) {
+    return;
+  }
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).then(fetchResponse => {
+        return fetchResponse;
+      }).catch(() => {
+        // Fallback pour les routes de navigation
+        if (event.request.mode === 'navigate') {
+          return caches.match('/');
+        }
+        return new Response('Offline', { status: 503 });
+      });
+    })
   );
 });
 
@@ -33,7 +51,7 @@ self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'Coach Life';
   const options = {
-    body: data.body || 'C\'est l\'heure de ton focus !',
+    body: data.body || "C'est l'heure de ton focus !",
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
     tag: data.tag || 'reminder',
