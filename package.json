@@ -1,0 +1,14 @@
+{
+  "name": "coach-life-pwa",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1",
+    "vite": "^5.0.0"
+  }
+}
